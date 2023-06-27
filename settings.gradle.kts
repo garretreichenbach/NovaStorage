@@ -1,10 +1,10 @@
-rootProject.name = "example" // TODO: Change this to your addon id
+rootProject.name = "novastorage" // TODO: Change this to your addon id
 
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("nova", "0.13")
-            version("spigot", "1.19.4-R0.1-SNAPSHOT")
+            version("nova", "0.14-RC.1")
+            version("spigot", "1.20.1-R0.1-SNAPSHOT")
             version("kotlin", "1.8.20")
             
             plugin("kotlin", "org.jetbrains.kotlin.jvm").versionRef("kotlin")
