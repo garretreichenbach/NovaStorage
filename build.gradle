@@ -1,0 +1,67 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url 'https://repo.xenondevs.xyz/releases/' }
+	}
+	dependencies {
+		classpath "xyz.xenondevs.nova:nova-gradle-plugin:0.17-alpha.25"
+		classpath "xyz.xenondevs:string-remapper-gradle-plugin:1.0.0"
+		classpath "xyz.xenondevs:specialsource-gradle-plugin:1.2"
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'xyz.xenondevs.nova.nova-gradle-plugin'
+apply plugin: 'xyz.xenondevs.string-remapper-gradle-plugin'
+apply plugin: 'xyz.xenondevs.specialsource-gradle-plugin'
+
+group = 'thederpgamer.novastorage'
+version = '1.0.0'
+
+def mojangMapped = project.hasProperty('mojang-mapped')
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.xenondevs.xyz/releases' }
+	maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+	maven { url 'https://oss.sonatype.org/content/repositories/central' }
+	mavenLocal {
+		content {
+			includeGroup 'org.spigotmc'
+		}
+	}
+}
+
+dependencies {
+	implementation 'xyz.xenondevs.nova:Nova:0.10.6'
+	implementation 'xyz.xenondevs.nova:nova-api:0.17-alpha.25'
+	implementation 'org.spigotmc:spigot:1.21.1-R0.1-SNAPSHOT'
+}
+
+addon {
+	id = project.name
+	version = project.version.toString()
+	novaVersion = '0.16.2'
+	main = 'thederpgamer.novastorage.NovaStorage'
+	authors = ['TheDerpGamerX']
+}
+
+spigotRemap {
+	spigotVersion = '1.21.1-R0.1-SNAPSHOT'
+	sourceJarTask = tasks.jar
+}
+
+remapStrings {
+	remapGoal = mojangMapped ? 'mojang' : 'spigot'
+	spigotVersion = '1.21.1-R0.1-SNAPSHOT'
+}
+
+tasks.register('addonJar', Copy) {
+	group = 'build'
+	dependsOn 'addon', mojangMapped ? 'jar' : 'remapObfToSpigot'
+
+	from file("$buildDir/libs/${project.name}-${project.version}.jar")
+	into project.hasProperty('outDir') ? file(project.property('outDir')) : buildDir
+	rename { it.replace(project.name, addon.addonName.get()) }
+}
